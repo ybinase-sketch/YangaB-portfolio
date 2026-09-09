@@ -21,15 +21,31 @@ gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
 
 /* --- Scrollcraft: reveal-on-scroll for this site's real grid items ---
-   Covers every grid class actually used across the 6 pages that load this file:
-   work-card / case-card (work.html), tile (additional-work.html),
-   motion-item (motion-animation.html), apparel-item (apparel.html),
-   role (contact-cv.html), featured-motion-item (if present). */
-const revealSelectors = '.work-card, .case-card, .tile, .motion-item, .apparel-item, .role, .featured-motion-item';
+   Covers grid classes on CSS Grid layouts only: work-card / case-card
+   (work.html), motion-item (motion-animation.html), role (contact-cv.html),
+   featured-motion-item (if present).
+
+   Deliberately excludes .tile (additional-work.html) and .apparel-item
+   (apparel.html): those live inside `columns:` (CSS multi-column) layouts,
+   and applying `transform` to a column child corrupts the browser's column
+   width measurement — visible as images squeezed into narrow vertical
+   slivers. Opacity-only animation is used for those two instead, below. */
+const revealSelectors = '.work-card, .case-card, .motion-item, .role, .featured-motion-item';
 document.querySelectorAll(revealSelectors).forEach((el) => {
   gsap.from(el, {
     opacity: 0,
     y: 24,
+    duration: 0.7,
+    ease: 'power2.out',
+    scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+  });
+});
+
+/* Multi-column layout items: opacity-only fade, no transform, no y-shift —
+   safe inside `columns:` containers. */
+document.querySelectorAll('.tile, .apparel-item').forEach((el) => {
+  gsap.from(el, {
+    opacity: 0,
     duration: 0.7,
     ease: 'power2.out',
     scrollTrigger: { trigger: el, start: 'top 90%', once: true }
